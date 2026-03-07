@@ -15,7 +15,7 @@ public class JsonDataStore : IDataStore
     
     public JsonDataStore(string? jsonFilePath = null)
     {
-        _jsonFilePath = jsonFilePath ?? "data.json";
+        _jsonFilePath = jsonFilePath ?? "./data.json";
     }
 
     public void Load()
