@@ -91,31 +91,38 @@ public class EmployeesViewModel : ViewModelBase
             Employees.Add(emp);
     }
 
-    private void AddEmployee()
+    private async void AddEmployee()
     {
-        var emp = new Employee
+        if (!_store.Organizations.Any()) return;
+
+        var newEmp = new Employee { Id = _store.NextEmployeeId, OrganizationId = _store.Organizations[0].Id };
+        var dialog = new EditWindow();
+        dialog.SetupForEmployee(newEmp, _store.Organizations, "Новый сотрудник");
+
+        var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        if (await dialog.ShowDialog<bool>(desktop.MainWindow))
         {
-            Id = _store.NextEmployeeId,
-            FirstName = "Имя",
-            LastName = "Фамилия",
-            Position = "Должность",
-            OrganizationId = _store.Organizations.First().Id
-        };
-
-        _store.Employees.Add(emp);
-        ApplyFilters();
-
-        _store.Save();
-        _log.Log($"Добавлен сотрудник: {emp.LastName}");
+            _store.Employees.Add(newEmp);
+            _store.Save();
+            _log.Log($"Добавлен сотрудник: {newEmp.LastName}");
+            ApplyFilters();
+        }
     }
 
-    private void EditEmployee()
+    private async void EditEmployee()
     {
-        if (SelectedEmployee == null)
-            return;
+        if (SelectedEmployee == null) return;
 
-        _store.Save();
-        _log.Log($"Редактирование сотрудника: {SelectedEmployee.LastName}");
+        var dialog = new EditWindow();
+        dialog.SetupForEmployee(SelectedEmployee, _store.Organizations, "Редактирование сотрудника");
+
+        var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        if (await dialog.ShowDialog<bool>(desktop.MainWindow))
+        {
+            _store.Save();
+            _log.Log($"Изменен сотрудник: {SelectedEmployee.LastName}");
+            ApplyFilters();
+        }
     }
 
     private async void DeleteEmployee()

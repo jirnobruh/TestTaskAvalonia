@@ -40,30 +40,38 @@ public class OrganizationsViewModel : ViewModelBase
         DeleteOrganizationCommand = new RelayCommand(DeleteOrganization);
     }
 
-    private void AddOrganization()
+    private async void AddOrganization()
     {
-        var org = new Organization
+        var newOrg = new Organization { Id = _store.NextOrganizationId };
+        var dialog = new EditWindow();
+        dialog.SetupForOrganization(newOrg, "Добавление организации");
+
+        var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        var result = await dialog.ShowDialog<bool>(desktop.MainWindow);
+
+        if (result)
         {
-            Id = _store.NextOrganizationId,
-            Name = "New Organization",
-            Address = "New Address",
-        };
-        
-        _store.Organizations.Add(org);
-        Organizations.Add(org);
-        
-        _store.Save();
-        _log.Log($"Добавлена организация {org.Name}");
+            _store.Organizations.Add(newOrg);
+            Organizations.Add(newOrg);
+            _store.Save();
+            _log.Log($"Добавлена организация: {newOrg.Name}");
+        }
     }
     
-    private void EditOrganization()
+    private async void EditOrganization()
     {
-        if (SelectedOrganization == null)
-            return;
+        if (SelectedOrganization == null) return;
 
-        _log.Log($"Редактирование организации: {SelectedOrganization.Name}");
+        var dialog = new EditWindow();
+        dialog.SetupForOrganization(SelectedOrganization, "Редактирование организации");
 
-        _store.Save();
+        var desktop = Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        if (await dialog.ShowDialog<bool>(desktop.MainWindow))
+        {
+            _store.Save();
+            _log.Log($"Изменена организация: {SelectedOrganization.Name}");
+            Reload();
+        }
     }
 
     private async void DeleteOrganization()
