@@ -18,7 +18,7 @@ public class LoggingService
         File.AppendAllLines(_logFilePath, new[] { line });
     }
 
-    public void LogError(string message)
+    public void LogError(Exception message)
     {
         Log("Error: " + message);
     }

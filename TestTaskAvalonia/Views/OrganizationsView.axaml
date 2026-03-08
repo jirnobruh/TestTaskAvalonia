@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TestTaskAvalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TestTaskAvalonia.Views.OrganizationsView"
+             x:DataType="vm:OrganizationsViewModel">
+    <Grid RowDefinitions="Auto,*" Margin="10">
+
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Content="Добавить" Command="{Binding AddOrganizationCommand}"/>
+            <Button Content="Редактировать" Command="{Binding EditOrganizationCommand}"/>
+            <Button Content="Удалить" Command="{Binding DeleteOrganizationCommand}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                        AutoGenerateColumns="False"
+                        IsReadOnly="True"
+                        Margin="0,10,0,0"
+                        ItemsSource="{Binding Organizations}"
+                        SelectedItem="{Binding SelectedOrganization}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="2*"/>
+            </DataGrid.Columns>
+
+        </DataGrid>
+    </Grid>
+</UserControl>

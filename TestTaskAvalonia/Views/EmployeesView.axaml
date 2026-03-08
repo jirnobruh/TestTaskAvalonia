@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:TestTaskAvalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TestTaskAvalonia.Views.EmployeesView"
+             x:DataType="vm:EmployeesViewModel">
+    <Grid RowDefinitions="Auto,Auto,*" Margin="10">
+
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <ComboBox Width="200"
+                      ItemsSource="{Binding Organizations}"
+                      SelectedItem="{Binding SelectedOrganizationFilter}"
+                      DisplayMemberBinding="{Binding Name}"/>
+
+            <TextBox Width="200"
+                     Text="{Binding SearchLastName}"
+                     Watermark="Поиск по фамилии" />
+
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+            <Button Content="Добавить" Command="{Binding AddCommand}" />
+            <Button Content="Редактировать" Command="{Binding EditCommand}" />
+            <Button Content="Удалить" Command="{Binding DeleteCommand}" />
+        </StackPanel>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Employees}"
+                  SelectedItem="{Binding SelectedEmployee}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding FirstName}" Width="*"/>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding LastName}" Width="*"/>
+                <DataGridTextColumn Header="Должность" Binding="{Binding Position}" Width="*"/>
+                <DataGridTextColumn Header="Организация" Binding="{Binding OrganizationId}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>
