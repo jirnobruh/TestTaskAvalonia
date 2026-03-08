@@ -8,15 +8,28 @@ using TestTaskAvalonia.Services;
 
 namespace TestTaskAvalonia.ViewModels;
 
-public class EmployeesViewModel
+public class EmployeesViewModel : ViewModelBase
 {
     private readonly IDataStore _store;
     private readonly LoggingService _log;
 
-    public ObservableCollection<Employee> Employees { get; private set; }
-    public ObservableCollection<Organization> Organizations { get; }
+    public ObservableCollection<Employee> Employees { get; } = new();
+    public ObservableCollection<Organization> Organizations { get; } = new();
 
-    public Employee? SelectedEmployee { get; set; }
+    private Employee? _selectedEmployee;
+    public Employee? SelectedEmployee
+    {
+        get => _selectedEmployee;
+        set 
+        {
+            if (SetProperty(ref _selectedEmployee, value))
+            {
+                (AddCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (EditCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
+        }
+    }
 
     private Organization? _selectedOrganizationFilter;
     public Organization? SelectedOrganizationFilter
@@ -24,8 +37,8 @@ public class EmployeesViewModel
         get => _selectedOrganizationFilter;
         set
         {
-            _selectedOrganizationFilter = value;
-            ApplyFilters();
+            if (SetProperty(ref _selectedOrganizationFilter, value))
+                ApplyFilters();
         }
     }
 
@@ -35,26 +48,25 @@ public class EmployeesViewModel
         get => _searchLastName;
         set
         {
-            _searchLastName = value;
-            ApplyFilters();
+            if (SetProperty(ref _searchLastName, value))
+                ApplyFilters();
         }
     }
-    
-    public ICommand AddCommand { get; }
-    public ICommand EditCommand { get; }
-    public ICommand DeleteCommand { get; }
+
+    public RelayCommand AddCommand { get; }
+    public RelayCommand EditCommand { get; }
+    public RelayCommand DeleteCommand { get; }
 
     public EmployeesViewModel(IDataStore store, LoggingService log)
     {
         _store = store;
         _log = log;
 
-        Organizations = new ObservableCollection<Organization>(_store.Organizations);
-        Employees = new ObservableCollection<Employee>(_store.Employees);
-
         AddCommand = new RelayCommand(AddEmployee);
         EditCommand = new RelayCommand(EditEmployee, () => SelectedEmployee != null);
         DeleteCommand = new RelayCommand(DeleteEmployee, () => SelectedEmployee != null);
+
+        Reload();
     }
 
     private void ApplyFilters()
@@ -67,7 +79,9 @@ public class EmployeesViewModel
         if (!string.IsNullOrWhiteSpace(SearchLastName))
             filtered = filtered.Where(e => e.LastName.Contains(SearchLastName, StringComparison.OrdinalIgnoreCase));
 
-        Employees = new ObservableCollection<Employee>(filtered);
+        Employees.Clear();
+        foreach (var emp in filtered)
+            Employees.Add(emp);
     }
 
     private void AddEmployee()
@@ -108,13 +122,12 @@ public class EmployeesViewModel
         _store.Save();
         _log.Log($"Удалён сотрудник: {SelectedEmployee.LastName}");
     }
-
+    
     public void Reload()
     {
         Organizations.Clear();
         foreach (var org in _store.Organizations)
             Organizations.Add(org);
-
         ApplyFilters();
     }
 }

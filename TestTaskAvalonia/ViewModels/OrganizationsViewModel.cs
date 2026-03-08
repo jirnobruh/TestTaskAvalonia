@@ -6,18 +6,18 @@ using TestTaskAvalonia.Services;
 
 namespace TestTaskAvalonia.ViewModels;
 
-public class OrganizationsViewModel
+public class OrganizationsViewModel : ViewModelBase
 {
     private readonly IDataStore _store;
     private readonly LoggingService _log;
     
-    public ObservableCollection<Organization> Organizations { get; private set; }
+    public ObservableCollection<Organization> Organizations { get; } = new();
 
     private Organization? _selectedOrganization;
     public Organization? SelectedOrganization
     {
         get => _selectedOrganization;
-        set => _selectedOrganization = value;
+        set => SetProperty(ref _selectedOrganization, value);
     }
     
     public ICommand AddOrganizationCommand { get; }
@@ -76,7 +76,8 @@ public class OrganizationsViewModel
     
     public void Reload()
     {
-        Organizations = new ObservableCollection<Organization>(_store.Organizations);
+        Organizations.Clear();
+        foreach (var org in _store.Organizations)
+            Organizations.Add(org);
     }
-
 }
