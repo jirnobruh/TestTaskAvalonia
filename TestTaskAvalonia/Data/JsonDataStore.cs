@@ -57,4 +57,16 @@ public class JsonDataStore : IDataStore
         public List<Employee> Employees { get; set; } = new();
     }
     
+    public void DeleteOrganization(Organization org)
+    {
+        var relatedEmployees = Employees.Where(e => e.OrganizationId == org.Id).ToList();
+    
+        foreach (var emp in relatedEmployees)
+        {
+            Employees.Remove(emp);
+        }
+    
+        Organizations.Remove(org);
+        Save();
+    }
 }

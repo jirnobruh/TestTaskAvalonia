@@ -2,9 +2,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using TestTaskAvalonia.Data;
 using TestTaskAvalonia.Domain;
 using TestTaskAvalonia.Services;
+using TestTaskAvalonia.Views;
 
 namespace TestTaskAvalonia.ViewModels;
 
@@ -15,6 +18,8 @@ public class EmployeesViewModel : ViewModelBase
 
     public ObservableCollection<Employee> Employees { get; } = new();
     public ObservableCollection<Organization> Organizations { get; } = new();
+    
+    public ICommand ResetFiltersCommand { get; }
 
     private Employee? _selectedEmployee;
     public Employee? SelectedEmployee
@@ -66,6 +71,8 @@ public class EmployeesViewModel : ViewModelBase
         EditCommand = new RelayCommand(EditEmployee, () => SelectedEmployee != null);
         DeleteCommand = new RelayCommand(DeleteEmployee, () => SelectedEmployee != null);
 
+        ResetFiltersCommand = new RelayCommand(ResetFilters);
+        
         Reload();
     }
 
@@ -111,16 +118,31 @@ public class EmployeesViewModel : ViewModelBase
         _log.Log($"Редактирование сотрудника: {SelectedEmployee.LastName}");
     }
 
-    private void DeleteEmployee()
+    private async void DeleteEmployee()
     {
-        if (SelectedEmployee == null)
-            return;
+        if (SelectedEmployee == null) return;
 
-        _store.Employees.Remove(SelectedEmployee);
-        ApplyFilters();
+        var dialog = new ConfirmDialog($"Удалить сотрудника {SelectedEmployee.LastName}?");
+        var mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var result = await dialog.ShowDialog<bool>(mainWindow);
 
-        _store.Save();
-        _log.Log($"Удалён сотрудник: {SelectedEmployee.LastName}");
+        if (result)
+        {
+            string name = SelectedEmployee.LastName;
+            _store.Employees.Remove(SelectedEmployee);
+            _store.Save();
+        
+            _log.Log($"Удалён сотрудник: {name}"); 
+            ApplyFilters(); 
+        }
+    }
+    
+    private void ResetFilters()
+    {
+        SelectedOrganizationFilter = null;
+        SearchLastName = string.Empty;
+    
+        _log.Log("Фильтры списка сотрудников сброшены");
     }
     
     public void Reload()

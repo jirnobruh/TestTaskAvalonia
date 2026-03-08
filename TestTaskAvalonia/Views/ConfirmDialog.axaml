@@ -1,0 +1,13 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="TestTaskAvalonia.Views.ConfirmDialog"
+        Title="Подтверждение" Width="400" Height="150"
+        WindowStartupLocation="CenterOwner" CanResize="False">
+    <StackPanel Margin="20" Spacing="20">
+        <TextBlock Name="MessageText" TextWrapping="Wrap" Text="Вы уверены?" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Content="Да" Click="OnYesClick" Width="80"/>
+            <Button Content="Нет" Click="OnNoClick" Width="80"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

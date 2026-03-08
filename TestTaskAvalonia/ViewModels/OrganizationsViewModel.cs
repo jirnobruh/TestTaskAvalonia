@@ -1,8 +1,12 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using TestTaskAvalonia.Data;
 using TestTaskAvalonia.Domain;
 using TestTaskAvalonia.Services;
+using TestTaskAvalonia.Views;
 
 namespace TestTaskAvalonia.ViewModels;
 
@@ -62,16 +66,33 @@ public class OrganizationsViewModel : ViewModelBase
         _store.Save();
     }
 
-    private void DeleteOrganization()
+    private async void DeleteOrganization()
     {
-        if (SelectedOrganization == null)
-            return;
+        if (SelectedOrganization == null) return;
 
-        _store.Organizations.Remove(SelectedOrganization);
-        Organizations.Remove(SelectedOrganization);
+        var dialog = new ConfirmDialog(
+            $"Вы уверены, что хотите удалить организацию '{SelectedOrganization.Name}'? " +
+            "Внимание: все сотрудники этой организации также будут удалены!");
+    
+        var mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+        var result = await dialog.ShowDialog<bool>(mainWindow);
 
-        _store.Save();
-        _log.Log($"Удалена организация: {SelectedOrganization.Name}");
+        if (result)
+        {
+            string orgName = SelectedOrganization.Name;
+            int orgId = SelectedOrganization.Id;
+
+            var toRemove = _store.Employees.Where(e => e.OrganizationId == orgId).ToList();
+            foreach (var emp in toRemove) _store.Employees.Remove(emp);
+        
+            _store.Organizations.Remove(SelectedOrganization);
+            _store.Save();
+        
+            _log.Log($"Удалена организация: {orgName} и {toRemove.Count} сотрудников");
+        
+            // Обновляем списки в UI
+            Reload(); 
+        }
     }
     
     public void Reload()

@@ -17,6 +17,10 @@
                     Margin="10">
             <Button Content="Создать тестовые данные"
                     Command="{Binding GenerateTestDataCommand}" />
+            <Button Content="Очистить все справочники"
+                    Command="{Binding ClearDataCommand}"
+                    Margin="10"
+                    Background="Red" Foreground="White"/>
         </StackPanel>
 
         <TabControl Margin="10">

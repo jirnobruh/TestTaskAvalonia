@@ -16,16 +16,15 @@ public class TestDataGenerator
 
     public void Generate()
     {
-        _store.Organizations.Clear();
-        _store.Employees.Clear();
-        
+        int currentOrgCount = _store.Organizations.Count;
+
         for (int i = 1; i <= 3; i++)
         {
             var org = new Organization
             {
                 Id = _store.NextOrganizationId,
-                Name = $"Организация {i}",
-                Address = $"Адрес {i}"
+                Name = $"Организация {currentOrgCount + i}", // Уникальное имя
+                Address = $"Адрес {currentOrgCount + i}"
             };
 
             _store.Organizations.Add(org);
@@ -35,8 +34,8 @@ public class TestDataGenerator
                 var emp = new Employee
                 {
                     Id = _store.NextEmployeeId,
-                    FirstName = $"Имя{j}",
-                    LastName = $"Фамилия{j}",
+                    FirstName = $"Имя {org.Id}-{j}",
+                    LastName = $"Фамилия {org.Id}-{j}",
                     Position = "Сотрудник",
                     OrganizationId = org.Id
                 };
@@ -47,5 +46,13 @@ public class TestDataGenerator
 
         _store.Save();
         _log.Log("Сгенерированы тестовые данные");
+    }
+    
+    public void ClearAllData()
+    {
+        _store.Organizations.Clear();
+        _store.Employees.Clear();
+        _store.Save();
+        _log.Log("Все данные справочника удалены пользователем");
     }
 }
