@@ -14,6 +14,7 @@ public class OrganizationsViewModel : ViewModelBase
 {
     private readonly IDataStore _store;
     private readonly LoggingService _log;
+    private readonly MainWindowViewModel _mainVM;
     
     public ObservableCollection<Organization> Organizations { get; } = new();
 
@@ -28,10 +29,11 @@ public class OrganizationsViewModel : ViewModelBase
     public ICommand EditOrganizationCommand { get; }
     public ICommand DeleteOrganizationCommand { get; }
     
-    public OrganizationsViewModel(IDataStore store, LoggingService log)
+    public OrganizationsViewModel(IDataStore store, LoggingService log, MainWindowViewModel mainVM)
     {
         _store = store;
         _log = log;
+        _mainVM = mainVM;
         
         Organizations = new ObservableCollection<Organization>(_store.Organizations);
 
@@ -98,8 +100,12 @@ public class OrganizationsViewModel : ViewModelBase
         
             _log.Log($"Удалена организация: {orgName} и {toRemove.Count} сотрудников");
         
-            // Обновляем списки в UI
-            Reload(); 
+            Reload();
+            
+            if (result)
+            {
+                _mainVM.RefreshAll(); 
+            }
         }
     }
     

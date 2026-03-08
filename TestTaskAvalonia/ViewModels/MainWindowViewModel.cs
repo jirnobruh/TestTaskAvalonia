@@ -28,7 +28,7 @@ public class MainWindowViewModel
         GenerateTestDataCommand = new RelayCommand(GenerateTestData);
         ClearDataCommand = new RelayCommand(ClearAll);
         
-        OrganizationsVM = new OrganizationsViewModel(_dataStore, _logging);
+        OrganizationsVM = new OrganizationsViewModel(_dataStore, _logging, this);
         EmployeesVM = new EmployeesViewModel(_dataStore, _logging);
     }
 
@@ -52,7 +52,6 @@ public class MainWindowViewModel
         try 
         {
             _testDataGenerator.ClearAllData();
-            // Обновляем вкладки, чтобы они увидели пустоту
             OrganizationsVM.Reload();
             EmployeesVM.Reload();
         }
@@ -60,5 +59,11 @@ public class MainWindowViewModel
         {
             _logging.LogError(ex);
         }
+    }
+    
+    public void RefreshAll()
+    {
+        OrganizationsVM.Reload();
+        EmployeesVM.Reload();
     }
 }
